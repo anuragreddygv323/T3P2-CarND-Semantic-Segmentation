@@ -1,4 +1,4 @@
-# CarND-Semantic Segmentation project
+# CarND-Semantic Segmentation Project
 Self-Driving Car Engineer Nanodegree Program
 
 ### Project Overview
