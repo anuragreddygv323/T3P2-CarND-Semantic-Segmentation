@@ -67,13 +67,16 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
     layer_4_1x1 = conv_1x1(vgg_layer4_out, num_classes)
     layer_3_1x1 = conv_1x1(vgg_layer3_out, num_classes)
 
+    #implement the first transposed convolution layer
     upsample1 = upsample(layer_7_1x1, num_classes, 5, 2)
     layer1 = tf.layers.batch_normalization(upsample1)
+    #add the first skip connection from the layer_4_1x1    
     layer1 = tf.add(layer1, layer_4_1x1)
 
-
+    #implement the another transposed convolution layer
     upsample2 = upsample(layer1, num_classes, 5, 2)
     layer2 = tf.layers.batch_normalization(upsample2)
+    #add the second skip connection from the layer_3_1x1        
     layer2 = tf.add(layer2, layer_3_1x1)
 
     return upsample(layer2, num_classes, 14, 8)    
@@ -90,13 +93,13 @@ def optimize(nn_last_layer, correct_label, learning_rate, num_classes):
     :param num_classes: Number of classes to classify
     :return: Tuple of (logits, train_op, cross_entropy_loss)
     """
-    # TODO: Implement function
     # reshape the 4D output and label tensors to 2D:
     # so each row represent a pixel and each column a class.
     logits = tf.reshape(nn_last_layer, (-1, num_classes))
     correct_label = tf.reshape(correct_label, (-1, num_classes))
-    loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits = logits, labels = correct_label))
 
+    # now define a loss function and a trainer/optimizer    
+    loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits = logits, labels = correct_label))
     optimizer = tf.train.AdamOptimizer(learning_rate).minimize(loss)
 
     return logits, optimizer, loss
@@ -121,6 +124,7 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
     """
     steps = 0
     for epoch_i in range(epochs):
+        # train on batches        
         for images, labels in get_batches_fn(batch_size):
             _, loss = sess.run([train_op, cross_entropy_loss],
             feed_dict={input_image: images, correct_label: labels, keep_prob:0.75, learning_rate:0.0001})
@@ -132,6 +136,7 @@ tests.test_train_nn(train_nn)
 
 
 def run():
+    # initialization    
     num_classes = 2
     image_shape = (160, 576)
     runs_dir = './runs'
@@ -147,18 +152,14 @@ def run():
     # Download pretrained vgg model
     helper.maybe_download_pretrained_vgg(data_dir)
 
-    # OPTIONAL: Train and Inference on the cityscapes dataset instead of the Kitti dataset.
-    # You'll need a GPU with at least 10 teraFLOPS to train on.
-    #  https://www.cityscapes-dataset.com/
-
+    # Start training session
     with tf.Session() as sess:
         # Path to vgg model
         vgg_path = os.path.join(data_dir, 'vgg')
         # Create function to get batches
         get_batches_fn = helper.gen_batch_function(os.path.join(data_dir, 'data_road/training'), image_shape)
 
-        # TODO: Build NN using load_vgg, layers, and optimize function
-        # shape = [None, image_shape[0], image_shape[1], 3]
+        # Build NN using load_vgg, layers, and optimize function
         vgg_input, keep_prob, vgg_layer3, vgg_layer4, vgg_layer7 = load_vgg(
             sess, vgg_path)
 
@@ -170,10 +171,11 @@ def run():
         logits, train_op, cross_entropy_loss = optimize(nn_last_layer, correct_label, learning_rate, num_classes)
         sess.run(tf.global_variables_initializer())        
 
+        # Train NN using the train_nn function
         train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_loss, vgg_input,
              correct_label, keep_prob, learning_rate)
 
-        # TODO: Save inference data using helper.save_inference_samples
+        # Save inference data using helper.save_inference_samples
         helper.save_inference_samples(runs_dir, data_dir, sess, image_shape, logits, keep_prob, vgg_input)
 
 if __name__ == '__main__':
