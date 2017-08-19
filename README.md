@@ -1,6 +1,24 @@
-# Semantic Segmentation
-### Introduction
-In this project, you'll label the pixels of a road in images using a Fully Convolutional Network (FCN).
+# CarND-Semantic Segmentation project
+Self-Driving Car Engineer Nanodegree Program
+
+### Project Overview
+
+In this project, we trained a Fully Convolutional Network (FCN) to label the road pixels from images. We started with the VGG16 network and added skip layers, 1x1 convolutions and upsampling to build the FCN.
+
+The test environment: I launch a GPU instances (Instance type p2.xlarge) on Amazon EC2 with the udacity-carnd-advanced-deep-learning AMI from Udacity. After experimented with multiple epochs, batch sizes, learning rates and dropouts hyper parameters during training, finally select the following hyper parameters:
+
+- Epochs: 15
+- Batch Size: 16
+- Learning rate: 0.0001
+- Dropouts: 0.25
+
+### Example Output:
+
+![umm_000041.png](./runs/1503101855.428548/umm_000041.png)
+
+![um_000063.png](./runs/1503101855.428548/um_000063.png)
+
+![uu_000087.png](./runs/1503101855.428548/uu_000087.png)
 
 ### Setup
 ##### Frameworks and Packages
