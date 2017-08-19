@@ -140,7 +140,7 @@ def run():
 
     # training hyper parameters
     epochs = 15
-    batch_size = 8
+    batch_size = 16
     lr = 0.0001
     learning_rate = tf.constant(lr)    
 
